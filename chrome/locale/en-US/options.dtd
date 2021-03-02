@@ -1,0 +1,15 @@
+<!ENTITY duplicatesmerger-name "Duplicates Merger">
+<!ENTITY duplicatesmerger-preferences "Duplicates Merger Preferences"> 
+<!ENTITY duplicatesmerger-menu-typemismatch-label "Type mismatch">
+<!ENTITY duplicatesmerger-typemismatch-skip-label "Skip">
+<!ENTITY duplicatesmerger-typemismatch-master-label "Change to masters' type">
+<!ENTITY duplicatesmerger-preferences-label "Preferences window">
+
+<!ENTITY duplicatesmerger-menu-master-label "Master selection">
+<!ENTITY duplicatesmerger-master-oldest-label "Oldest">
+<!ENTITY duplicatesmerger-master-newest-label "Newest">
+
+<!ENTITY duplicatesmerger-preferences-delay "Delay between updates">
+
+<!ENTITY for-more-information "For more information goto "> 
+<!ENTITY duplicatesMerger-website "Duplicates Merger website"> 

@@ -1,0 +1,66 @@
+<?xml version="1.0"?>
+
+<!DOCTYPE overlay SYSTEM "chrome://zoteroduplicatesmerger/locale/overlay.dtd">
+
+<overlay
+    id="zoteroduplicatesmerger"
+    xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
+
+    <script src="chrome://zoteroduplicatesmerger/content/scripts/zoteroduplicatesmerger.js"/>
+    <script src="chrome://zotero/content/include.js"/>
+
+    <stringbundleset id="stringbundleset">
+        <stringbundle
+            id="duplicatesmerger-bundle"
+            src="chrome://zoteroduplicatesmerger/locale/duplicatesmerger.properties"/>
+    </stringbundleset>
+
+    <!-- Items popup menu -->
+    <popup
+        id="zotero-itemmenu">
+        <menuitem
+            id="duplicatesmerger-itemmenu"
+            label="&duplicatesmerger-itemmenu-label;"
+            oncommand="Zotero.DuplicatesMerger.mergeDuplicates()"/>
+    </popup>
+    
+    <!-- Tools menu on the toolbar -->
+    <menupopup id="menu_ToolsPopup">
+        <menu id="menu_Tools-duplicatesmerger-menu" label="&duplicatesmerger-menu-root-label;">
+            <menupopup id="menu_Tools-duplicatesmerger-menu-popup">
+            <!-- Open preferences window -->
+            <menuitem id="menu_Tools-duplicatesmerger-preferences" label="&duplicatesmerger-preferences-label;" oncommand="Zotero.DuplicatesMerger.openPreferenceWindow();"/>
+            <!-- Handle master item selection -->
+            <menu id="menu_Tools-duplicatesmerger-menu-master" label="&duplicatesmerger-menu-master-label;">
+                <menupopup id="menu_Tools-duplicatesmerger-menu-popup-master" onpopupshowing="Zotero.DuplicatesMerger.setCheck('master');">
+                <menuitem
+                    id="menu_Tools-duplicatesmerger-menu-popup-master-oldest"
+                    type="checkbox"
+                    label="&duplicatesmerger-master-oldest-label;"
+                    oncommand="Zotero.DuplicatesMerger.changePref('master','oldest');"/>
+                <menuitem
+                    id="menu_Tools-duplicatesmerger-menu-popup-master-newest"
+                    type="checkbox"
+                    label="&duplicatesmerger-master-newest-label;"
+                    oncommand="Zotero.DuplicatesMerger.changePref('master','newest');"/>
+                </menupopup>
+            </menu>
+            <!-- Handle type mismatch errors -->
+            <menu id="menu_Tools-duplicatesmerger-menu-typemismatch" label="&duplicatesmerger-menu-typemismatch-label;">
+                <menupopup id="menu_Tools-duplicatesmerger-menu-popup-typemismatch" onpopupshowing="Zotero.DuplicatesMerger.setCheck('typemismatch');">
+                <menuitem
+                    id="menu_Tools-duplicatesmerger-menu-popup-typemismatch-skip"
+                    type="checkbox"
+                    label="&duplicatesmerger-typemismatch-skip-label;"
+                    oncommand="Zotero.DuplicatesMerger.changePref('typemismatch','skip');"/>
+                <menuitem
+                    id="menu_Tools-duplicatesmerger-menu-popup-typemismatch-master"
+                    type="checkbox"
+                    label="&duplicatesmerger-typemismatch-master-label;"
+                    oncommand="Zotero.DuplicatesMerger.changePref('typemismatch','master');"/>
+                </menupopup>
+            </menu>
+            </menupopup>
+        </menu>
+    </menupopup>
+</overlay>

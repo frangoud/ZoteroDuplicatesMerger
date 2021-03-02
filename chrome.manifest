@@ -1,0 +1,5 @@
+content zoteroduplicatesmerger              chrome/content/
+locale  zoteroduplicatesmerger      en-US   chrome/locale/en-US/
+skin    zoteroduplicatesmerger      default chrome/skin/default/zoteroduplicatesmerger/
+
+overlay chrome://zotero/content/zoteroPane.xul chrome://zoteroduplicatesmerger/content/overlay.xul

@@ -1,0 +1,52 @@
+<?xml version="1.0"?>
+<?xml-stylesheet href="chrome://global/skin/" type="text/css"?>
+<?xml-stylesheet href="chrome://zotero-platform/content/preferences.css"?>
+
+<!DOCTYPE window SYSTEM "chrome://zoteroduplicatesmerger/locale/options.dtd">
+
+<!-- onload="updatePreferenceWindow('all');" -->
+<prefwindow id="duplicatesmerger-pref" title="&duplicatesmerger-preferences;" xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
+	<stringbundleset id="stringbundleset">
+		<stringbundle id="duplicatesmerger-options" src="chrome://zotero-duplicatesmerger/locale/options.properties"/>
+	</stringbundleset>
+  <prefpane label="&duplicatesmerger-preferences;" id="duplicatesmerger-prefpane">
+    <preferences>
+      <preference id="pref-duplicatesmerger-master" name="extensions.duplicatesmerger.master" type="string"/>
+      <preference id="pref-duplicatesmerger-typemismatch" name="extensions.duplicatesmerger.typemismatch" type="string"/>
+      <preference id="pref-duplicatesmerger-delay" name="extensions.duplicatesmerger.delay" type="int"/>
+    </preferences>
+
+    <groupbox>
+      <caption label="&duplicatesmerger-menu-master-label;"/>
+      <radiogroup id="id-duplicatesmerger-master" preference="pref-duplicatesmerger-master">
+        <radio label="&duplicatesmerger-master-oldest-label;" value='oldest'/>
+        <radio label="&duplicatesmerger-master-newest-label;" value='newest'/>
+      </radiogroup>
+    </groupbox>
+    <separator class="thin"/>
+      
+    <groupbox>
+      <caption label="&duplicatesmerger-menu-typemismatch-label;"/>
+      <radiogroup id="id-duplicatesmerger-typemismatch" preference="pref-duplicatesmerger-typemismatch">
+        <radio label="&duplicatesmerger-typemismatch-skip-label;" value='skip'/>
+        <radio label="&duplicatesmerger-typemismatch-master-label;" value='master'/>
+      </radiogroup>
+    </groupbox>
+
+    <separator class="thin"/>
+    <hbox style="margin: 0">
+      <label value="&duplicatesmerger-preferences-delay;"/>
+      <textbox id="id-duplicatesmerger-delay" preference="pref-duplicatesmerger-delay" width="50"/>
+    </hbox>
+    
+    <hbox style="margin: 0">
+      <label style="margin-right:0px" value="&for-more-information;"/>
+      <label style="margin-left:0px; margin-right:0px" class="text-link" onclick="Zotero.DuplicatesMerger.loadURI('https://github.com/frangoud/ZoteroDuplicatesMerger');" value="&duplicatesMerger-website;"/>
+      <label style="margin-left:0px; margin-right:0px" value="."/>
+    </hbox>
+  </prefpane>
+
+  <script src="options.js"/>
+  <script src="chrome://zotero/content/include.js"/>
+
+</prefwindow>

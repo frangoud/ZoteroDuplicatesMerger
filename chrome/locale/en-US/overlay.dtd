@@ -1,0 +1,17 @@
+<!ENTITY zotero.zoteroduplicatesmerger.menu.label "Duplicates merger preferences">
+<!ENTITY zotero.zoteroduplicatesmerger.toolsmenu.label "Merge duplicates">
+
+<!-- Item popup menu -->
+<!ENTITY duplicatesmerger-itemmenu-label "Merge duplicates">
+
+<!-- Menu options -->
+<!ENTITY duplicatesmerger-menu-root-label "Duplicates merger">
+
+<!ENTITY duplicatesmerger-menu-typemismatch-label "Type mismatch">
+<!ENTITY duplicatesmerger-typemismatch-skip-label "Skip">
+<!ENTITY duplicatesmerger-typemismatch-master-label "Change to masters' type">
+<!ENTITY duplicatesmerger-preferences-label "Preferences window">
+
+<!ENTITY duplicatesmerger-menu-master-label "Master selection">
+<!ENTITY duplicatesmerger-master-oldest-label "Oldest">
+<!ENTITY duplicatesmerger-master-newest-label "Newest">
