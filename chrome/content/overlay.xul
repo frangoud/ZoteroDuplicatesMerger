@@ -18,10 +18,19 @@
     <!-- Items popup menu -->
     <popup
         id="zotero-itemmenu">
-        <menuitem
-            id="duplicatesmerger-itemmenu"
-            label="&duplicatesmerger-itemmenu-label;"
-            oncommand="Zotero.DuplicatesMerger.mergeDuplicates()"/>
+        
+        <menu id="duplicatesmerger-itemmenu-menu" label="&duplicatesmerger-itemmenu-menu-label;">
+            <menupopup id="menu_Tools-duplicatesmerger-menu-popup-master" onpopupshowing="Zotero.DuplicatesMerger.showItemsPopup();">
+                <menuitem
+                    id="duplicatesmerger-itemmenu-bulk"
+                    label="&duplicatesmerger-itemmenu-bulk-label;"
+                    oncommand="Zotero.DuplicatesMerger.mergeDuplicates()"/>
+                <menuitem
+                    id="duplicatesmerger-itemmenu-single"
+                    label="&duplicatesmerger-itemmenu-single-label;"
+                    oncommand="Zotero.DuplicatesMerger.smartMerge()"/>
+            </menupopup>
+        </menu>
     </popup>
     
     <!-- Tools menu on the toolbar -->

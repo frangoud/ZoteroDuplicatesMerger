@@ -20,25 +20,22 @@ Zotero.DuplicatesMerger.loadURI = function(uri){
 };
 
 Zotero.DuplicatesMerger.init = function() {
-    this.nextPossibleDuplicateItem = 0;
-    this.isRunning = false;
-    this.counter = 0;
-    this.totalItems = 1;
+	this._ignoreFields = ['dateAdded', 'dateModified', 'accessDate'];
 
-    //this.stringsBundle = document.getElementById('duplicatesmerger-bundle');
+    this.noMismatchedItems = 0;
+    this.noSkippedItems = 0;
+    
+    this.lastProcessedItemId = 0;
+    this.currentRowCount = 0;
+    
+    this.isRunning = false;
+    this.initialNoItems = 1;
+
+    this.selectedItemsList = [];
+
     this.stringsBundle = Components.classes['@mozilla.org/intl/stringbundle;1']
     .getService(Components.interfaces.nsIStringBundleService)
     .createBundle('chrome://zoteroduplicatesmerger/locale/duplicatesmerger.properties');
-/*
-    // Register the callback in Zotero as an item observer
-    var notifierID = Zotero.Notifier.registerObserver(
-        Zotero.DuplicatesMerger.notifierCallback, ['item']);
-
-    // Unregister callback when the window closes (important to avoid a memory leak)
-    window.addEventListener('unload', function(e) {
-        Zotero.Notifier.unregisterObserver(notifierID);
-    }, false);
-*/
 };
 
 Zotero.DuplicatesMerger.getFormattedString = function(stringName, params) {
@@ -93,12 +90,36 @@ Zotero.DuplicatesMerger.openPreferenceWindow = function(paneID, action) {
     );
 };
 
-Zotero.DuplicatesMerger.mergeSelectedItems = async function(DupPane, items){
-    // try {
-        DupPane.mergeSelectedItems();
-        
-        var masterSelectionPreference = getPref("master");
+/**
+ * Context menu
+ */
 
+ Zotero.DuplicatesMerger.showItemsPopup = function() {
+    var win = Services.wm.getMostRecentWindow('navigator:browser');
+    var isDuplicatesPane = Zotero.getActiveZoteroPane().getCollectionTreeRow().isDuplicates();
+    win.ZoteroPane.document.getElementById('duplicatesmerger-itemmenu-bulk').setAttribute('hidden', !isDuplicatesPane);
+    win.ZoteroPane.document.getElementById('duplicatesmerger-itemmenu-single').setAttribute('hidden', isDuplicatesPane);
+}.bind(Zotero.DuplicatesMerger);
+
+/**
+ * Single item merge
+ */
+Zotero.DuplicatesMerger.smartMerge = function() {    
+    var ActivePane = Zotero.getActiveZoteroPane();
+    this.mergeSelectedItems(ActivePane, ActivePane.getSelectedItems(), false);
+};
+
+/**
+ * Bulk merge
+ */
+Zotero.DuplicatesMerger.mergeSelectedItems = async function(DupPane, items, performMerge){
+    // try {
+        await DupPane.mergeSelectedItems();
+        await new Promise(r => setTimeout(r, 1));
+
+        // Find the master item
+        var masterSelectionPreference = getPref("master");
+        
         items.sort(function (a, b) {
             return a.dateAdded > b.dateAdded ? 1 : a.dateAdded == b.dateAdded ? 0 : -1;
         });
@@ -107,14 +128,16 @@ Zotero.DuplicatesMerger.mergeSelectedItems = async function(DupPane, items){
         if (masterSelectionPreference == "newest"){
             masterIndex = items.length - 1;
         }
+        
+        // Select the master item
         if (masterIndex > 0){
-            setTimeout(function () {
-                var dateList = document.getElementById('zotero-duplicates-merge-original-date');
-                dateList.selectedIndex = masterIndex;
-            }, 0);
-            Zotero_Duplicates_Pane.setMaster(masterIndex);  
+            var dateList = document.getElementById('zotero-duplicates-merge-original-date');
+            dateList.selectedIndex = masterIndex;
+
+            Zotero_Duplicates_Pane.setMaster(masterIndex);
         }
 
+        // Handle type mismatching between items
         var masterTypeId = items[masterIndex].itemTypeID;
         var isTypeMismatch = false;
         for (let item of items) {
@@ -127,7 +150,8 @@ Zotero.DuplicatesMerger.mergeSelectedItems = async function(DupPane, items){
         if (isTypeMismatch == true){
             var typemismatchPreference = getPref("typemismatch");
             if (typemismatchPreference == "skip"){
-                Zotero.DuplicatesMerger.nextPossibleDuplicateItem += items.length;
+                Zotero.DuplicatesMerger.noMismatchedItems += items.length;
+                
                 return false;
             }
             else if (typemismatchPreference == "master"){
@@ -140,13 +164,42 @@ Zotero.DuplicatesMerger.mergeSelectedItems = async function(DupPane, items){
             }
         }
 
-        //Merge
-        //Zotero.DuplicatesMerger.nextPossibleDuplicateItem += items.length;
-        Zotero_Duplicates_Pane.merge();
+        // Merge Items
+        var item = items[masterIndex];
+        var _otherItems = items.concat();
+
+		// Add master item's values to the beginning of each set of
+		// alternative values so that they're still available if the item box
+		// modifies the item
+		var alternatives = item.multiDiff(_otherItems, this._ignoreFields);
+		if (alternatives) {
+            let itemValues = item.toJSON();
+            for (let i in alternatives) {
+                alternatives[i].unshift(itemValues[i] !== undefined ? itemValues[i] : '');
+            }
+        
+		    var itembox = document.getElementById('zotero-duplicates-merge-item-box');
+            for (let param in alternatives){                
+                if (param == "creators" || param == "tags" || param == "relations" || param == "collections") continue;
+                
+                var masterEntryIndex = 0;
+                for (let entry in alternatives[param]){
+                    if (alternatives[param][entry].length > alternatives[param][masterEntryIndex].length){
+                        masterEntryIndex = entry;
+                    }
+                }
+
+                if (masterEntryIndex > 0){
+                    itembox.item.setField(param, alternatives[param][masterEntryIndex]);
+                }
+            }
+            itembox.refresh();
+		}
+		
+        if (performMerge == true)
+            Zotero_Duplicates_Pane.merge();
+
         return true;
-    // } catch (e){
-    //     throw new Error(`Failed merging items with error: ${e}`);
-    // }
 };
 
 /**
@@ -157,25 +210,40 @@ Zotero.DuplicatesMerger.mergeSelectedItems = async function(DupPane, items){
  * @return {Interger[]}
  */
 Zotero.DuplicatesMerger.selectNextDuplicatedItems = function (pane){
-    if (pane.itemsView.rowCount > 0){
-        var itemID = pane.itemsView.getRow(Zotero.DuplicatesMerger.nextPossibleDuplicateItem).ref.id;
-        var setItemIDs = pane.getCollectionTreeRow().ref.getSetItemsByItemID(itemID);
-        if (setItemIDs.length <= 1)
-            return {
-                count: 0,
-                items: []
-            };
-        pane.itemsView.selectItems(setItemIDs);
+    var nextItemIdx = Zotero.DuplicatesMerger.noMismatchedItems + this.noSkippedItems;
+    if(pane.itemsView.rowCount > nextItemIdx){
+        // find the id of the next available item in the list
+        var itemID = pane.itemsView.getRow(nextItemIdx).ref.id;
+        
+        if (itemID != this.lastProcessedItemId || this.selectedItemsList.length == 0){
+            // get the items that have the same ID as the selected one
+            var selectedItemsIds = pane.getCollectionTreeRow().ref.getSetItemsByItemID(itemID);
+            // if no more than one item exists with the given id (i.e. selected item has no duplicates)
+            if (selectedItemsIds.length <= 1){
+                // add to the current offset so that the non-duplicated item can be skipped next time
+                this.noSkippedItems = this.noSkippedItems + selectedItemsIds.length;
+            }
+            else{ // if the selected item has duplicates
+                // mark the id of the item
+                this.lastProcessedItemId = itemID;
 
-        return{
-            count: setItemIDs.length,
-            items: pane.itemsView.getSelectedItems()
-        };
+                // select all items with that id
+                pane.itemsView.selectItems(selectedItemsIds);
+                
+                // and update the references to the selected items
+                this.selectedItemsList = pane.itemsView.getSelectedItems();
+
+                if (this.noSkippedItems > 0)
+                    this.noSkippedItems = 0;
+                
+                return true;
+            }
+        }
     }
-    return {
-        count: 0,
-        items: []
-    };
+    
+    this.selectedItemsList.length = 0;
+    this.noSkippedItems = 0;
+    return false;
 };
 
 /**
@@ -190,46 +258,47 @@ Zotero.DuplicatesMerger.createProgressWindow = function(){
 
     // Create a new window and initialize it
     var iconHeadline = 'chrome://zotero/skin/treesource-duplicates' + (Zotero.hiDPI ? "@2x" : "") + '.png';
-    var icon = "chrome://zotero/skin/tick.png";
+    var icon = "chrome://zotero/skin/plus.png";
     this.progressWindow = new Zotero.ProgressWindow({closeOnClick:false});
     this.progressWindow.changeHeadline(this.getFormattedString("general.progressHeaderInitial"), iconHeadline);
     this.progressWindow.progress = new this.progressWindow.ItemProgress(icon);
     this.progressWindow.progress.setProgress(100);
-    this.progressWindow.progress.setText(this.getFormattedString("general.progressMsgInitial", [this.totalItems]));
+    this.progressWindow.progress.setText(this.getFormattedString("general.progressMsgInitial", [this.initialNoItems]));
     this.progressWindow.show();
-    
-    // Zotero.DuplicatesMerger.progressWindow.startCloseTimer(4000);
-    // Zotero.DuplicatesMerger.progressWindow = new Zotero.ProgressWindow({closeOnClick: false});
-    // Zotero.DuplicatesMerger.progressWindow.changeHeadline("Merging duplicates", icon);
-    // Zotero.DuplicatesMerger.progressWindow.progress = new Zotero.DuplicatesMerger.progressWindow.ItemProgress(icon, "Merging duplicates.");
 };
 
 /**
  * Update the progress window based on the number of items processed
  */
 Zotero.DuplicatesMerger.updateProgressWindow = function () {
-    var percent = Math.round((this.counter/this.totalItems)*100);
+    var processed = this.initialNoItems - this.currentRowCount + this.noMismatchedItems;
+    var percent = Math.round((processed/this.initialNoItems)*100);
     this.progressWindow.progress.setProgress(percent);
-    this.progressWindow.progress.setText(this.getFormattedString("general.itemsProcessed", [this.counter, this.totalItems]));
+    this.progressWindow.progress.setText(this.getFormattedString("general.itemsProcessed", [processed, this.initialNoItems, this.currentRowCount - this.noMismatchedItems]));
     this.progressWindow.show();
 };
 
 Zotero.DuplicatesMerger.closeProgressWindow = function (errorNo, header, msg) {
     var iconHeadline = 'chrome://zotero/skin/treesource-duplicates' + (Zotero.hiDPI ? "@2x" : "") + '.png';
-    if (errorNo == 0){
+    if (errorNo == 0) {
+        var icon = "chrome://zotero/skin/cross.png";
         this.progressWindow.changeHeadline(header, iconHeadline);
+        this.progressWindow.progress = new this.progressWindow.ItemProgress(icon);
         this.progressWindow.progress.setProgress(100);
         this.progressWindow.progress.setText(msg);
         this.progressWindow.show();
-        this.progressWindow.startCloseTimer(2000);
+        this.progressWindow.startCloseTimer(5000);
     }
-    else{
+    else {
+        var icon = "chrome://zotero/skin/tick.png";
         this.progressWindow.changeHeadline(header, iconHeadline);
         this.progressWindow.addDescription(msg);
+        this.progressWindow.progress = new this.progressWindow.ItemProgress(icon);
         this.progressWindow.show();
         this.progressWindow.startCloseTimer(5000);
     }
 };
+
 /**
  * Main plugin function: Merge duplicate items
  */
@@ -239,75 +308,111 @@ Zotero.DuplicatesMerger.mergeDuplicates = async function () {
     {
         return;
     }
-    // Notify start of the duplicate merger
-    this.isRunning = true;    
-
-    // Initialize time out counter to pace the merging
-    var idleCount = 0;
-    var processedDelay = 0;
-
-    var delayBetweenCalls = getPref("delay");
 
     // Keep reference of the duplicates pane
     var DuplicatesPane = Zotero.getActiveZoteroPane();
+    if (!DuplicatesPane.getCollectionTreeRow().isDuplicates()){
+        return;
+    }
+
+    // Notify start of the duplicate merger
+    this.isRunning = true;
+
+    var delayBetweenCalls = getPref("delay");
 
     // Intialize progress / acitve item counters
-    this.counter = 0;
-    this.totalItems = DuplicatesPane.itemsView.rowCount;
-    this.nextPossibleDuplicateItem = 0;
+    this.initialNoItems = DuplicatesPane.itemsView.rowCount;
+    this.noMismatchedItems = 0;
+    this.noSkippedItems = 0;
+    
+    this.lastProcessedItemId = 0;
+    this.currentRowCount = DuplicatesPane.itemsView.rowCount;
+
+    this.selectedItemsList = [];
+
+    await DuplicatesPane.getCollectionTreeRow().getSearchObject();
 
     // Create Progress Windows
     this.createProgressWindow();
 
     // Retrive the first items from the list
-    var selectedItems = this.selectNextDuplicatedItems(DuplicatesPane);
+    this.selectNextDuplicatedItems(DuplicatesPane);
+    
+    // var errorCount = 0;
+    this.errorCount = 0;
+
     // Go while the duplicates pane is still the selected pane,
     // there are still items to be processed, and plugin hasn't timed out
-    while (DuplicatesPane.getCollectionTreeRow().isDuplicates() && DuplicatesPane.itemsView.rowCount > (Zotero.DuplicatesMerger.nextPossibleDuplicateItem+1) && idleCount < 10) {
-        // If there is a set of items selected
-        if (selectedItems.count > 1) {
-            try{
-                // Try to merge them        
-                this.counter += selectedItems.count;                
-                this.mergeSelectedItems(DuplicatesPane, selectedItems.items);
-                
-                // Wait for a bit and then select the next set of items
-                await new Promise(r => setTimeout(r, delayBetweenCalls));
-                this.updateProgressWindow();
-                selectedItems = this.selectNextDuplicatedItems(DuplicatesPane);
+    while (DuplicatesPane.getCollectionTreeRow().isDuplicates() && DuplicatesPane.itemsView.rowCount > (Zotero.DuplicatesMerger.noMismatchedItems+1) && this.errorCount <= 5) {
+        try{
+            this.currentRowCount = DuplicatesPane.itemsView.rowCount;
 
-            }catch(e){
-                // An error occured! Stop running and close notification window
-                this.isRunning = false;
+            // If there is a set of items selected
+            if (this.selectedItemsList.length > 1){
+                try{
+                    // Try to merge them
+                    if (this.mergeSelectedItems(DuplicatesPane, this.selectedItemsList))
+                    {
+                        this.currentRowCount = DuplicatesPane.itemsView.rowCount;
+                        this.updateProgressWindow();
+                        this.errorCount = 0;                    
+                    }
+                    else{
+                        Zotero.logError("DuplicatesMerger: unable to merge items");
+                        this.errorCount = this.errorCount + 1;
+                    }
+                }catch(e){
+                    Zotero.logError("DuplicatesMerger is having some issues");
+                    Zotero.logError("DuplicatesMerger: Error while merging of items");
+                    
+                    this.selectedItemsList.length = 0;
+                    this.noSkippedItems = 0;
+                    this.errorCount = this.errorCount + 1;
 
-                this.closeProgressWindow(1, this.getFormattedString("general.errorHasOccurredHeader"),this.getFormattedString("general.errorHasOccurredMsg"));
-
-                throw new Error('Stopping execution of duplicates merging');
+                    await new Promise(r => setTimeout(r, 2000));
+                    if (this.errorCount > 5){
+                        // An error occured! Stop running and close notification window
+                        this.isRunning = false;
+                        this.closeProgressWindow(0, this.getFormattedString("general.errorHasOccurredHeader"),this.getFormattedString("general.errorHasOccurredMsg"));
+                        await new Promise(r => setTimeout(r, 2000));
+                        break;
+                    }
+                }
             }
             
-            // A set of items has been processed this cycle
-            // => reset idle counters
-            idleCount = 0;
-            processedDelay = 0;
-        }
-        else {
-            if (processedDelay > 1){
-                idleCount = idleCount + 1;
-                selectedItems = this.selectNextDuplicatedItems(DuplicatesPane);
+            // Wait for a bit and then select the next set of items
+            await new Promise(r => setTimeout(r, delayBetweenCalls));
+            this.selectNextDuplicatedItems(DuplicatesPane);
+        }        
+        catch (e) {
+            Zotero.logError("DuplicatesMerger is having some issues");
+            Zotero.logError("DuplicatesMerger: Error while retrieving items to merge");
+           
+            this.selectedItemsList.length = 0;
+            this.noSkippedItems = 0;
+            this.errorCount = this.errorCount + 1;
+
+            await new Promise(r => setTimeout(r, 2000));
+            if (this.errorCount > 5){                     
+                // An error occured! Stop running and close notification window
+                this.isRunning = false;
+                this.closeProgressWindow(0, this.getFormattedString("general.errorHasOccurredHeader"),this.getFormattedString("general.errorHasOccurredMsg"));
+                await new Promise(r => setTimeout(r, 2000));
+                break;
             }
         }
-
-        await new Promise(r => setTimeout(r, delayBetweenCalls));
-        processedDelay += delayBetweenCalls;
     }
 
     await new Promise(r => setTimeout(r, 2 * delayBetweenCalls));
-    if (DuplicatesPane.itemsView.rowCount <= (this.nextPossibleDuplicateItem+1)){
-        this.closeProgressWindow(0, this.getFormattedString("general.progressCompleteHeader"),this.getFormattedString("general.progressCompleteMsg", [this.counter]));
+
+    var processed = this.initialNoItems - this.currentRowCount + this.noMismatchedItems
+    if (this.currentRowCount == Zotero.DuplicatesMerger.noMismatchedItems){
+        this.closeProgressWindow(1, this.getFormattedString("general.progressCompletedHeader"), this.getFormattedString("general.progressCompleteMsg", [processed]));
     }
     else{
-        this.closeProgressWindow(0, this.getFormattedString("general.progressInterrupterHeader"),this.getFormattedString("general.progressInterrupterMsg", [this.counter]));
+        this.closeProgressWindow(0, this.getFormattedString("general.progressInterrupterHeader"), this.getFormattedString("general.progressInterrupterMsg", [processed]));
     }
+
     this.isRunning = false;
 };
 
