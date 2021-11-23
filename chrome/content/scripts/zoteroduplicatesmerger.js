@@ -148,17 +148,26 @@ Zotero.DuplicatesMerger.mergeSelectedItems = async function(DupPane, items, perf
                 // find the length of the first creator for the first entry
                 var longestCreatorsNameLength = 0
                 var firstItemValues = item.toJSON();
-                if (firstItemValues.creators.length > 0)
-                    longestCreatorsNameLength = getCreatorName(firstItemValues.creators[0]).length;
-
+                for (let creator of firstItemValues.creators){
+                    if (creator.creatorType != "author") continue;
+                    longestCreatorsNameLength = getCreatorName(creator).length;
+                    break;
+                }
+            
                 // go over each item and find if there's a first creator with a longer name
                 for (var i = 1 ; i < _otherItems.length ; i++){
                     var alternativeItemValues = _otherItems[i].toJSON();
                     if (alternativeItemValues.creators.length == 0) continue;
-                    var alternativeNameLength = getCreatorName(alternativeItemValues.creators[0]).length;
-                    if (alternativeNameLength > longestCreatorsNameLength){
-                        longestCreatorsNameLength = alternativeNameLength;
-                        masterIndex = i;
+                    
+                    for (let creator of alternativeItemValues.creators){
+                        if (creator.creatorType != "author") continue;
+                        
+                        var alternativeNameLength = getCreatorName(creator).length;
+                        if (alternativeNameLength > longestCreatorsNameLength){
+                            longestCreatorsNameLength = alternativeNameLength;
+                            masterIndex = i;
+                        }
+                        break;
                     }
                 }
             }
