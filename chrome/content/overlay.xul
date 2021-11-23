@@ -52,6 +52,11 @@
                     type="checkbox"
                     label="&duplicatesmerger-master-newest-label;"
                     oncommand="Zotero.DuplicatesMerger.changePref('master','newest');"/>
+                <menuitem
+                    id="menu_Tools-duplicatesmerger-menu-popup-master-creator"
+                    type="checkbox"
+                    label="&duplicatesmerger-master-creator-label;"
+                    oncommand="Zotero.DuplicatesMerger.changePref('master','creator');"/>
                 </menupopup>
             </menu>
             <!-- Handle type mismatch errors -->

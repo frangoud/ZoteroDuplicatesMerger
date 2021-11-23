@@ -21,6 +21,7 @@
       <radiogroup id="id-duplicatesmerger-master" preference="pref-duplicatesmerger-master">
         <radio label="&duplicatesmerger-master-oldest-label;" value='oldest'/>
         <radio label="&duplicatesmerger-master-newest-label;" value='newest'/>
+        <radio label="&duplicatesmerger-master-creator-label;" value='creator'/>
       </radiogroup>
     </groupbox>
     <separator class="thin"/>

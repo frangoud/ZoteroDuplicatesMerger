@@ -1,13 +1,14 @@
 <!ENTITY duplicatesmerger-name "Duplicates Merger">
 <!ENTITY duplicatesmerger-preferences "Duplicates Merger Preferences"> 
-<!ENTITY duplicatesmerger-menu-typemismatch-label "Type mismatch">
+<!ENTITY duplicatesmerger-menu-typemismatch-label "Type Mismatch Handling">
 <!ENTITY duplicatesmerger-typemismatch-skip-label "Skip">
 <!ENTITY duplicatesmerger-typemismatch-master-label "Change to masters' type">
 <!ENTITY duplicatesmerger-preferences-label "Preferences window">
 
-<!ENTITY duplicatesmerger-menu-master-label "Master selection">
-<!ENTITY duplicatesmerger-master-oldest-label "Oldest">
-<!ENTITY duplicatesmerger-master-newest-label "Newest">
+<!ENTITY duplicatesmerger-menu-master-label "Master Selection Criteria">
+<!ENTITY duplicatesmerger-master-oldest-label "Oldest (Date Added)">
+<!ENTITY duplicatesmerger-master-newest-label "Newest (Date Added)">
+<!ENTITY duplicatesmerger-master-creator-label "Longest Name of 1st Creator">
 
 <!ENTITY duplicatesmerger-preferences-delay "Delay between updates">
 

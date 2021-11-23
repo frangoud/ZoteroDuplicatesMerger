@@ -63,8 +63,10 @@ Zotero.DuplicatesMerger.setCheck = function(type) {
     if (type == 'master'){
         var tools_oldest = document.getElementById("menu_Tools-duplicatesmerger-menu-popup-master-oldest");
         var tools_newest = document.getElementById("menu_Tools-duplicatesmerger-menu-popup-master-newest");
+        var tools_creator = document.getElementById("menu_Tools-duplicatesmerger-menu-popup-master-creator");
         tools_oldest.setAttribute("checked", Boolean(pref === "oldest"));
         tools_newest.setAttribute("checked", Boolean(pref === "newest"));
+        tools_creator.setAttribute("checked", Boolean(pref === "creator"));
     }
     else if (type == 'typemismatch'){
         var tools_skip = document.getElementById("menu_Tools-duplicatesmerger-menu-popup-typemismatch-skip");
@@ -128,6 +130,39 @@ Zotero.DuplicatesMerger.mergeSelectedItems = async function(DupPane, items, perf
         if (masterSelectionPreference == "newest"){
             masterIndex = items.length - 1;
         }
+        // Select as master item the one that has the longest first name author
+        else if (masterSelectionPreference == "creator"){
+            function getCreatorName(creatorEntry){
+                if (creatorEntry.name != null)
+                    return creatorEntry.name;
+                return creatorEntry.lastName + " " + creatorEntry.firstName;
+            }
+
+            // Retrieve the possible alternatives for each property
+            var item = items[0];
+            var _otherItems = items.concat();
+            var alternatives = item.multiDiff(_otherItems, this._ignoreFields);
+
+            // If there are alternatives names for the creators
+            if (alternatives["creators"] != null){
+                // find the length of the first creator for the first entry
+                var longestCreatorsNameLength = 0
+                var firstItemValues = item.toJSON();
+                if (firstItemValues.creators.length > 0)
+                    longestCreatorsNameLength = getCreatorName(firstItemValues.creators[0]).length;
+
+                // go over each item and find if there's a first creator with a longer name
+                for (var i = 1 ; i < _otherItems.length ; i++){
+                    var alternativeItemValues = _otherItems[i].toJSON();
+                    if (alternativeItemValues.creators.length == 0) continue;
+                    var alternativeNameLength = getCreatorName(alternativeItemValues.creators[0]).length;
+                    if (alternativeNameLength > longestCreatorsNameLength){
+                        longestCreatorsNameLength = alternativeNameLength;
+                        masterIndex = i;
+                    }
+                }
+            }
+        }
         
         // Select the master item
         if (masterIndex > 0){
@@ -164,7 +199,7 @@ Zotero.DuplicatesMerger.mergeSelectedItems = async function(DupPane, items, perf
             }
         }
 
-        // Merge Items
+        /// Merge Items
         var item = items[masterIndex];
         var _otherItems = items.concat();
 
