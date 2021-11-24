@@ -201,10 +201,10 @@ Zotero.DuplicatesMerger.mergeSelectedItems = async function(DupPane, items, perf
             else if (typemismatchPreference == "master"){
                 for (let item of items) {
                     if (masterTypeId != item.itemTypeID){
-                        item.setField("itemTypeID",masterTypeId);
-                        await item.saveTx();
+                        item.setType(masterTypeId);
                     }
                 }
+                await new Promise(r => setTimeout(r, 200));
             }
         }
 
