@@ -13,8 +13,8 @@ Code for this extension is based in part [Zotero DOI Manager](https://github.com
   - Download the latest extension file (.xpi) from releases
   - Open Zotero and navigate to the sub-menu option "Tools -> Add-ons" from the top toolbar to open the Add-ons Manager
   - Next, you can do one of the two:
-    > drag and drop the .xpi file to the manager window that opened
-    > click the small drop-down wheel in the top right corner of the manager window, click "Install Add-on From File”, and select the downloaded .xpi file
+    - drag and drop the .xpi file to the manager window that opened
+    - click the small drop-down wheel in the top right corner of the manager window, click "Install Add-on From File”, and select the downloaded .xpi file
   - Restart Zotero
 
 ### Plugin Functions
