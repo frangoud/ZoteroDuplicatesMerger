@@ -395,7 +395,7 @@ Zotero.DuplicatesMerger.mergeDuplicates = async function () {
             if (this.selectedItemsList.length > 1){
                 try{
                     // Try to merge them
-                    if (this.mergeSelectedItems(DuplicatesPane, this.selectedItemsList))
+                    if (this.mergeSelectedItems(DuplicatesPane, this.selectedItemsList, true))
                     {
                         this.currentRowCount = DuplicatesPane.itemsView.rowCount;
                         this.updateProgressWindow();
