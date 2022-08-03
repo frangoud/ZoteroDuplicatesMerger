@@ -11,6 +11,7 @@
 <!ENTITY duplicatesmerger-master-creator-label "Longest Name of 1st Creator">
 
 <!ENTITY duplicatesmerger-preferences-delay "Delay between updates">
+<!ENTITY duplicatesmerger-preferences-skippreview "Skip preview of merge results (i.e., perform merge on single click)">
 
 <!ENTITY for-more-information "For more information goto "> 
 <!ENTITY duplicatesMerger-website "Duplicates Merger website"> 

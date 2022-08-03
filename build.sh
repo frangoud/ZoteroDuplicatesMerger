@@ -1,5 +1,5 @@
 #!/bin/sh
 echo Enter version number:
 read version
-rm zotero-duplicatesmerger-${version}.xpi
-zip -r zotero-duplicatesmerger-${version}.xpi chrome/* defaults/* chrome.manifest install.rdf options.xul
+rm ZoteroDuplicatesMerger-v${version}.xpi
+zip -r ZoteroDuplicatesMerger-${version}.xpi chrome/* defaults/* chrome.manifest install.rdf LICENSE README.md update.rdf

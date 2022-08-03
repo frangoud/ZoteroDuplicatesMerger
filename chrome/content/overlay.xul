@@ -1,5 +1,7 @@
 <?xml version="1.0"?>
 
+<?xml-stylesheet href="chrome://zoteroduplicatesmerger/content/overlay.css" type="text/css"?>
+
 <!DOCTYPE overlay SYSTEM "chrome://zoteroduplicatesmerger/locale/overlay.dtd">
 
 <overlay
@@ -15,6 +17,11 @@
             src="chrome://zoteroduplicatesmerger/locale/duplicatesmerger.properties"/>
     </stringbundleset>
 
+    <!-- Toolbar -->
+    <hbox id="zotero-item-toolbar">
+        <toolbarbutton id="duplicatesmerger-smartmerge-button" class="zotero-tb-button duplicatesmerger-smartmerge-button" tooltiptext="&duplicatesmerger-itemmenu-single-label;" oncommand="Zotero.DuplicatesMerger.smartMerge()"/>
+        <spacer flex="1"/>        
+    </hbox>
     <!-- Items popup menu -->
     <popup
         id="zotero-itemmenu">

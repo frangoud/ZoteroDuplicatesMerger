@@ -1,0 +1,15 @@
+#duplicatesmerger-smartmerge-button {
+  position: absolute;
+  left: 0;
+  top:  0;
+
+  width: 20px;
+  height: 20px;
+
+  background-image: url(chrome://zotero/skin/treesource-duplicates.png);
+  
+  background-position: 0 0;
+
+  
+	list-style-image: url('chrome://zotero/skin/treesource-duplicates.png');
+}

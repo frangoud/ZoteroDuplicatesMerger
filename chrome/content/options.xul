@@ -14,6 +14,7 @@
       <preference id="pref-duplicatesmerger-master" name="extensions.duplicatesmerger.master" type="string"/>
       <preference id="pref-duplicatesmerger-typemismatch" name="extensions.duplicatesmerger.typemismatch" type="string"/>
       <preference id="pref-duplicatesmerger-delay" name="extensions.duplicatesmerger.delay" type="int"/>
+      <preference id="pref-duplicatesmerger-skippreview" name="extensions.duplicatesmerger.skippreview" type="bool"/>
     </preferences>
 
     <groupbox>
@@ -39,6 +40,14 @@
       <label value="&duplicatesmerger-preferences-delay;"/>
       <textbox id="id-duplicatesmerger-delay" preference="pref-duplicatesmerger-delay" width="50"/>
     </hbox>
+
+    <separator class="thin"/>
+    <hbox style="margin: 0">
+      <label value="&duplicatesmerger-preferences-skippreview;"/>
+      <checkbox id="id-duplicatesmerger-skippreview" preference="pref-duplicatesmerger-skippreview" width="50"/>
+    </hbox>
+    
+    <separator class="thin"/>
     
     <hbox style="margin: 0">
       <label style="margin-right:0px" value="&for-more-information;"/>
