@@ -1,0 +1,18 @@
+{
+  "addons": {
+    "frangoudes.fotos@gmail.com": {
+      "updates": [
+        {
+          "version": "1.1.5",
+          "update_link": "https://github.com/frangoud/ZoteroDuplicatesMerger",
+          "applications": {
+            "gecko": {
+              "id": "zotero@chnm.gmu.edu",
+              "min_version": "5.0"
+            }
+          }
+        }
+      ]
+    }
+  }
+}

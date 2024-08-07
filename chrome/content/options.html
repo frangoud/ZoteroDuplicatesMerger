@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Duplicates Merger Preferences</title>
+    <link rel="stylesheet" href="chrome://global/skin/" type="text/css" />
+    <link
+      rel="stylesheet"
+      href="chrome://zotero-platform/content/preferences.css"
+      type="text/css"
+    />
+  </head>
+  <body>
+    <h1>Duplicates Merger Preferences</h1>
+    <form id="duplicatesmerger-pref">
+      <fieldset>
+        <legend>Master Item</legend>
+        <label>
+          <input
+            type="radio"
+            name="extensions.duplicatesmerger.master"
+            value="oldest"
+          />
+          Oldest
+        </label>
+        <label>
+          <input
+            type="radio"
+            name="extensions.duplicatesmerger.master"
+            value="newest"
+          />
+          Newest
+        </label>
+        <label>
+          <input
+            type="radio"
+            name="extensions.duplicatesmerger.master"
+            value="creator"
+          />
+          Creator
+        </label>
+      </fieldset>
+      <fieldset>
+        <legend>Type Mismatch</legend>
+        <label>
+          <input
+            type="radio"
+            name="extensions.duplicatesmerger.typemismatch"
+            value="skip"
+          />
+          Skip
+        </label>
+        <label>
+          <input
+            type="radio"
+            name="extensions.duplicatesmerger.typemismatch"
+            value="master"
+          />
+          Master
+        </label>
+      </fieldset>
+      <fieldset>
+        <legend>Delay</legend>
+        <label>
+          Delay:
+          <input
+            type="number"
+            name="extensions.duplicatesmerger.delay"
+            min="0"
+          />
+        </label>
+      </fieldset>
+      <label>
+        <input type="checkbox" name="extensions.duplicatesmerger.skippreview" />
+        Skip Preview
+      </label>
+    </form>
+  </body>
+</html>
