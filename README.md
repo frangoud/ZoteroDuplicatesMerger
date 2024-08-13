@@ -1,3 +1,22 @@
+# Implementation for Zotero 7
+
+Thanks for the excellent functions of **Zotero Duplicate Merger**. In Zotero 7, [Zoplicate](https://github.com/ChenglongMa/zoplicate) is an alternative plugin with the following functions:
+
+* **Duplicates Detection**
+  * Detects if newly imported items are duplicates of existing ones in the Zotero library.
+  * You can choose which version of duplicate items to use as the **master item** and **merge** them.
+  * The actions you can take:
+    1. **Keep New**: Set the **new item** as the master item and merge the duplicates.
+    2. **Keep Old**: Set the **existing item** as the master item and merge the duplicates.
+    3. **Keep All**: Keep both the new item and the existing item.
+    4. **Merge Manually**: Go to the Duplicate Items Panel and merge the duplicate item manually.
+* **Auto-Bulk Merge**
+  * Merges all duplicate items in the library automatically.
+* **Non-duplicates Management**
+  * Allows marking items as "Non-duplicates" if mistakenly identified as duplicates by Zotero.
+* **Show Duplicate Statistics**
+  * Append the duplicate count on the label of Duplicate Items pane.
+
 # Zotero Duplicates Merger
 
 This is an add-on for Zotero that makes merging duplicated items easier. It offers two different modes:
